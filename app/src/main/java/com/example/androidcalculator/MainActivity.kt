@@ -59,18 +59,21 @@ class MainActivity : AppCompatActivity() {
         binding.workingTV.text = ""
     }
 
-    private fun calculation() :String {
+    private fun calculation(): String {
         if (binding.workingTV.text.isEmpty())
             return "NaN"
-        var list = breakText()
-        var result = ""
-        if (list[list.lastIndex] is Char)
+        val breakList = breakText()
+        if (breakList[breakList.lastIndex] is Char)
             return "NaN"
-        if (list.contains('x') || list.contains('/'))
-            list = timeOrDivide(list)
-        if (list.contains('+') || list.contains('-'))
-            result = plusOrMinus(list)
-        return result
+
+        var timeDivRes =breakList
+        if (timeDivRes.contains('x') || timeDivRes.contains('/')) {
+            timeDivRes = timeOrDivide(timeDivRes)
+        }
+        if (timeDivRes.isEmpty()) {
+            return "NaN"
+        }
+        return plusOrMinus(timeDivRes)
     }
 
     private fun plusOrMinus(oldList: ArrayList<Any>): String {
@@ -95,21 +98,32 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun timeOrDivide(oldList: ArrayList<Any>): ArrayList<Any> {
+        var flag=false
         var newList = ArrayList<Any>()
         var i = 0
         var currentIndex = oldList.size
-        var currentResult = -1.0
+        var currentResult=-1.0
         while (i < oldList.size){
             if (oldList[i] is Char && i != oldList.lastIndex){
                 val firstNum = when(currentResult){
-                    -1.0 -> oldList[i-1] as Double
+                    -1.0 -> {
+                        oldList[i-1] as Double
+                    }
                     else -> currentResult
+                }
+                if(currentResult==-1.0){
+                    flag=true
                 }
                 val operator = oldList[i]
                 val secondNum = oldList[i+1] as Double
                 when(operator){
                     'x' ->{
-                        currentResult = firstNum * secondNum
+                        currentResult=firstNum * secondNum
+
+                        i++
+                        if(i==oldList.size-1){
+                            newList.add(currentResult)
+                        }
                         currentIndex = i+1
                     }
                     '/' ->{
@@ -118,12 +132,22 @@ class MainActivity : AppCompatActivity() {
                         }
                         else {
                             currentResult = firstNum / secondNum
+                            i++
+                            if(i==oldList.size-1){
+                                newList.add(currentResult)
+                            }
                             currentIndex = i+1
                         }
                     }
                     else ->{
-                        newList.add(firstNum)
-                        currentResult = -1.0
+                        if(flag){
+                            newList.add(firstNum)
+                            flag=false
+                        }else{
+                            newList.add(currentResult)
+                            currentResult=-1.0
+                        }
+                        newList.add(operator)
                     }
                 }
             }
@@ -131,7 +155,9 @@ class MainActivity : AppCompatActivity() {
                 newList.add(oldList[i])
             i++
         }
-        if (newList.isEmpty()) newList.add(currentResult)
+        if(newList.isEmpty()){
+            newList.add(currentResult)
+        }
         return newList
     }
 
