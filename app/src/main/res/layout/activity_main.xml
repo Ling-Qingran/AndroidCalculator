@@ -18,7 +18,7 @@
             android:id="@+id/workingTV"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Hello World!"
+            android:text=""
             android:lines="2"
             android:maxLines="2"
             android:textColor="@color/white"
@@ -32,7 +32,7 @@
             android:id="@+id/resultTV"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Hello World!"
+            android:text=""
             android:lines="1"
             android:maxLines="1"
             android:textColor="@color/white"
@@ -76,7 +76,7 @@
             android:text="-"/>
         <Button
             style="@style/buttonOperator"
-            android:text="\"/>
+            android:text="\/"/>
     </LinearLayout>
     <LinearLayout
         style="@style/buttonRow">
@@ -90,6 +90,7 @@
             style="@style/buttonNumber"
             android:text="9"/>
         <Button
+            android:id="@+id/sqrt"
             style="@style/buttonOperator"
             android:text="sqrt"/>
         <Button

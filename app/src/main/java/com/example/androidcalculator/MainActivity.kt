@@ -33,6 +33,9 @@ class MainActivity : AppCompatActivity() {
     }
 
     fun operationAction(view: View) {
+        if (view is Button && view.id == R.id.sqrt){
+            binding.resultTV.text = "SQRT"
+        }
         if (view is Button && canAddOperation) {
             binding.workingTV.append(view.text)
             canAddOperation = false
@@ -51,6 +54,102 @@ class MainActivity : AppCompatActivity() {
         }
         binding.resultTV.text = ""
     }
-    fun equalsAction(view: View) {}
+    fun equalsAction(view: View) {
+        binding.resultTV.text = calculation()
+        binding.workingTV.text = ""
+    }
+
+    private fun calculation() :String {
+        if (binding.workingTV.text.isEmpty())
+            return "NaN"
+        var list = breakText()
+        var result = ""
+        if (list[list.lastIndex] is Char)
+            return "NaN"
+        if (list.contains('x') || list.contains('/'))
+            list = timeOrDivide(list)
+        if (list.contains('+') || list.contains('-'))
+            result = plusOrMinus(list)
+        return result
+    }
+
+    private fun plusOrMinus(oldList: ArrayList<Any>): String {
+        var i = 0
+        var result = oldList[0] as Double
+        while (i < oldList.size){
+            if (oldList[i] is Char && i != oldList.lastIndex){
+                val operator = oldList[i]
+                val secondNum = oldList[i+1] as Double
+                when(operator){
+                    '+' ->{
+                        result += secondNum
+                    }
+                    '-' ->{
+                        result -= secondNum
+                    }
+                }
+            }
+            i++
+        }
+        return result.toString()
+    }
+
+    private fun timeOrDivide(oldList: ArrayList<Any>): ArrayList<Any> {
+        var newList = ArrayList<Any>()
+        var i = 0
+        var currentIndex = oldList.size
+        var currentResult = -1.0
+        while (i < oldList.size){
+            if (oldList[i] is Char && i != oldList.lastIndex){
+                val firstNum = when(currentResult){
+                    -1.0 -> oldList[i-1] as Double
+                    else -> currentResult
+                }
+                val operator = oldList[i]
+                val secondNum = oldList[i+1] as Double
+                when(operator){
+                    'x' ->{
+                        currentResult = firstNum * secondNum
+                        currentIndex = i+1
+                    }
+                    '/' ->{
+                        if (secondNum == 0.0){
+                            return arrayListOf<Any>("Error: Divide by Zero")
+                        }
+                        else {
+                            currentResult = firstNum / secondNum
+                            currentIndex = i+1
+                        }
+                    }
+                    else ->{
+                        newList.add(firstNum)
+                        currentResult = -1.0
+                    }
+                }
+            }
+            if (i > currentIndex)
+                newList.add(oldList[i])
+            i++
+        }
+        if (newList.isEmpty()) newList.add(currentResult)
+        return newList
+    }
+
+    private fun breakText() :ArrayList<Any>{
+        val list = ArrayList<Any>()
+        var num = ""
+        for (c in binding.workingTV.text){
+            if (c.isDigit() || c == '.')
+                num += c
+            else {
+                list.add(num.toDouble())
+                num = ""
+                list.add(c)
+            }
+        }
+        if (num.isNotEmpty())
+            list.add(num.toDouble())
+        return list
+    }
 
 }
