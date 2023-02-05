@@ -57,6 +57,7 @@ class MainActivity : AppCompatActivity() {
     fun equalsAction(view: View) {
         binding.resultTV.text = calculation()
         binding.workingTV.text = ""
+        canAddOperation = false
     }
 
     private fun calculation(): String {
