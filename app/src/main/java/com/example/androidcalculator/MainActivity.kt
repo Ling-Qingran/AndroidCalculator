@@ -5,15 +5,14 @@ import android.os.Bundle
 import android.util.Log
 import android.view.View
 import android.widget.Button
+import androidx.activity.viewModels
 import com.example.androidcalculator.databinding.ActivityMainBinding
 import kotlin.math.sqrt
 
 class MainActivity : AppCompatActivity() {
 
-    private var canAddOperation = false
-    private  var canAddDecimal = true
     private lateinit var binding: ActivityMainBinding
-
+    private val resultViewModel:ResultViewModel by viewModels()
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityMainBinding.inflate(layoutInflater)
@@ -23,47 +22,57 @@ class MainActivity : AppCompatActivity() {
     fun numberAction(view: View) {
         if (view is Button) {
             if (view.text == ".") {
-                if (canAddDecimal) {
-                    binding.workingTV.append(view.text)
+                if (resultViewModel.current_canAddDecimal) {
+                    resultViewModel.workingTVAppend(view.text)
+                    updateWorkingTV()
                 }
-                canAddDecimal = false
+                resultViewModel.setCanAddDecimal(false)
             } else {
-                binding.workingTV.append(view.text)
+                resultViewModel.workingTVAppend(view.text)
+                updateWorkingTV()
             }
-            canAddOperation = true
+            resultViewModel.setCanAddOperation(true)
         }
     }
 
     fun operationAction(view: View) {
         if (view is Button && view.id == R.id.sqrt){
-            binding.resultTV.text = sqrtCalculate()
+            resultViewModel.setResultTV(sqrtCalculate())
+            updateResultTV()
         }
-        if (view is Button && canAddOperation) {
-            binding.workingTV.append(view.text)
-            canAddOperation = false
-            canAddDecimal = true
+        if (view is Button && resultViewModel.current_canAddOperation) {
+            resultViewModel.workingTVAppend(view.text)
+            updateWorkingTV()
+            resultViewModel.setCanAddOperation(false)
+            resultViewModel.setCanAddDecimal(true)
         }
     }
 
     fun allClearAction(view: View) {
-        binding.workingTV.text = ""
-        binding.resultTV.text = ""
+        resultViewModel.allClearButton()
+        updateWorkingTV()
+        updateResultTV()
     }
     fun backSpaceAction(view: View) {
-        val workingTVText = binding.workingTV.text.toString()
+        val workingTVText = resultViewModel.current_workingTV_text.toString()
         if (workingTVText.isNotEmpty()) {
-            binding.workingTV.text = workingTVText.substring(0, workingTVText.length - 1)
+            resultViewModel.setWorkingTV(workingTVText.substring(0, workingTVText.length - 1))
+            updateWorkingTV()
         }
-        binding.resultTV.text = ""
+        resultViewModel.setResultTV("")
+        updateResultTV()
+
     }
     fun equalsAction(view: View) {
-        binding.resultTV.text = calculation()
-        binding.workingTV.text = ""
-        canAddOperation = false
+        resultViewModel.setResultTV(calculation())
+        resultViewModel.setWorkingTV("")
+        resultViewModel.setCanAddOperation(false)
+        updateWorkingTV()
+        updateResultTV()
     }
 
     private fun calculation(): String {
-        if (binding.workingTV.text.isEmpty())
+        if (resultViewModel.current_workingTV_text.isEmpty())
             return "NaN"
         val breakList = breakText()
         if (breakList[breakList.lastIndex] is Char)
@@ -169,10 +178,10 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun sqrtCalculate():String{
-        if(binding.resultTV.text.isEmpty()){
+        if(resultViewModel.current_resultTV_text.isEmpty()){
             return ""
         }
-        var result=binding.resultTV.text.toString().toDouble()
+        var result=resultViewModel.current_resultTV_text.toString().toDouble()
         if(result <0.0){
             return "NaN"
         }
@@ -183,7 +192,7 @@ class MainActivity : AppCompatActivity() {
     private fun breakText() :ArrayList<Any>{
         val list = ArrayList<Any>()
         var num = ""
-        for (c in binding.workingTV.text){
+        for (c in resultViewModel.current_workingTV_text){
             if (c.isDigit() || c == '.')
                 num += c
             else {
@@ -197,4 +206,10 @@ class MainActivity : AppCompatActivity() {
         return list
     }
 
+    private fun updateWorkingTV(){
+        binding.workingTV.text=resultViewModel.current_workingTV_text
+    }
+    private fun updateResultTV(){
+        binding.resultTV.text=resultViewModel.current_resultTV_text
+    }
 }
