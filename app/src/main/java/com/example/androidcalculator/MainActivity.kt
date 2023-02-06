@@ -112,9 +112,7 @@ class MainActivity : AppCompatActivity() {
                     }
                     else -> currentResult
                 }
-                if(currentResult==-1.0){
-                    flag=true
-                }
+
                 val operator = oldList[i]
                 val secondNum = oldList[i+1] as Double
                 when(operator){
@@ -141,6 +139,9 @@ class MainActivity : AppCompatActivity() {
                         }
                     }
                     else ->{
+                        if(currentResult==-1.0){
+                            flag=true
+                        }
                         if(flag){
                             newList.add(firstNum)
                             flag=false
@@ -149,11 +150,14 @@ class MainActivity : AppCompatActivity() {
                             currentResult=-1.0
                         }
                         newList.add(operator)
+                        if(i+1==oldList.lastIndex&&!(oldList[i+1] is Char)){
+                            newList.add(oldList[i+1])
+                        }
                     }
                 }
             }
-            if (i > currentIndex)
-                newList.add(oldList[i])
+//            if (i > currentIndex)
+//                newList.add(oldList[i])
             i++
         }
         if(newList.isEmpty()){
