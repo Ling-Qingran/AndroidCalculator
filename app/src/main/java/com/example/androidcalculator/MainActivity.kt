@@ -2,9 +2,11 @@ package com.example.androidcalculator
 
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.util.Log
 import android.view.View
 import android.widget.Button
 import com.example.androidcalculator.databinding.ActivityMainBinding
+import kotlin.math.sqrt
 
 class MainActivity : AppCompatActivity() {
 
@@ -34,7 +36,7 @@ class MainActivity : AppCompatActivity() {
 
     fun operationAction(view: View) {
         if (view is Button && view.id == R.id.sqrt){
-            binding.resultTV.text = "SQRT"
+            binding.resultTV.text = sqrtCalculate()
         }
         if (view is Button && canAddOperation) {
             binding.workingTV.append(view.text)
@@ -102,7 +104,7 @@ class MainActivity : AppCompatActivity() {
         var flag=false
         var newList = ArrayList<Any>()
         var i = 0
-        var currentIndex = oldList.size
+//        var currentIndex = oldList.size
         var currentResult=-1.0
         while (i < oldList.size){
             if (oldList[i] is Char && i != oldList.lastIndex){
@@ -123,7 +125,7 @@ class MainActivity : AppCompatActivity() {
                         if(i==oldList.size-1){
                             newList.add(currentResult)
                         }
-                        currentIndex = i+1
+//                        currentIndex = i+1
                     }
                     '/' ->{
                         if (secondNum == 0.0){
@@ -135,7 +137,7 @@ class MainActivity : AppCompatActivity() {
                             if(i==oldList.size-1){
                                 newList.add(currentResult)
                             }
-                            currentIndex = i+1
+//                            currentIndex = i+1
                         }
                     }
                     else ->{
@@ -164,6 +166,18 @@ class MainActivity : AppCompatActivity() {
             newList.add(currentResult)
         }
         return newList
+    }
+
+    private fun sqrtCalculate():String{
+        if(binding.resultTV.text.isEmpty()){
+            return ""
+        }
+        var result=binding.resultTV.text.toString().toDouble()
+        if(result <0.0){
+            return "NaN"
+        }
+        result=sqrt(result)
+        return result.toString()
     }
 
     private fun breakText() :ArrayList<Any>{
